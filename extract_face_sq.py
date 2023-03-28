@@ -80,36 +80,41 @@ def resize_save_image(img_obj, img_path):
         img_path (str): input image path
     """
     for i in range(len(img_obj)):
-        x = img_obj[i]["facial_area"]["x"]
-        y = img_obj[i]["facial_area"]["y"]
-        w = img_obj[i]["facial_area"]["w"]
-        h = img_obj[i]["facial_area"]["h"]
+        # skip if error detected during cropping and resizing
+        try:
+            x = img_obj[i]["facial_area"]["x"]
+            y = img_obj[i]["facial_area"]["y"]
+            w = img_obj[i]["facial_area"]["w"]
+            h = img_obj[i]["facial_area"]["h"]
 
-        x1, y1, x2, y2 = convert_sq(x, y, w, h, 2)
+            x1, y1, x2, y2 = convert_sq(x, y, w, h, 2)
 
-        image = cv2.imread(img_path)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        # image1 = cv2.rectangle(image, (x1, y1), (x2, y2), (255,0,0), 5)
-        crop_img = image[y1:y2, x1:x2]
+            image = cv2.imread(img_path)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            # image1 = cv2.rectangle(image, (x1, y1), (x2, y2), (255,0,0), 5)
+            crop_img = image[y1:y2, x1:x2]
 
-        # Resize image
-        img_resized = cv2.resize(crop_img, (512, 512))
-        # Save image
-        img_resized = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
+            # Resize image
+            img_resized = cv2.resize(crop_img, (512, 512))
+            # Save image
+            img_resized = cv2.cvtColor(img_resized, cv2.COLOR_BGR2RGB)
 
-        pathname, filename, ext = split_filename(img_path)
+            pathname, filename, ext = split_filename(img_path)
 
-        # create folder if it did not exist
-        resized_folder = os.path.join("./" + pathname, "resized")
-        if not os.path.exists(resized_folder):
-            os.makedirs(resized_folder)
+            # create folder if it did not exist
+            resized_folder = os.path.join(pathname, "resized")
+            if not os.path.exists(resized_folder):
+                os.makedirs(resized_folder)
 
-        resized_image_file = os.path.join(
-            resized_folder, filename + "_resized" + "_" + str(i) + ext
-        )
-        print(resized_image_file)
+            resized_image_file = os.path.join(
+                resized_folder, filename + "_resized" + "_" + str(i) + ext
+            )
+            print(resized_image_file)
 
-        cv2.imwrite(resized_image_file, img_resized)
+            cv2.imwrite(resized_image_file, img_resized)
+        except:
+            print("Error processing this image:", img_path + "_" + str(i))
+            return
 
 
 def extract_face(path):
